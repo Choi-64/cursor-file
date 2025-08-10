@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실용 영어 학습 - 일상생활 필수 표현</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🌍 실용 영어 학습</h1>
+            <p class="subtitle">일상생활에서 가장 많이 사용하는 영어 표현들</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- 카테고리 선택 -->
+            <section class="category-section">
+                <h2>학습 카테고리 선택</h2>
+                <div class="category-grid">
+                    <div class="category-card" data-category="greetings">
+                        <div class="category-icon">👋</div>
+                        <h3>인사하기</h3>
+                        <p>기본적인 인사말과 대화 시작</p>
+                    </div>
+                    <div class="category-card" data-category="daily">
+                        <div class="category-icon">🏠</div>
+                        <h3>일상생활</h3>
+                        <p>집, 학교, 직장에서 자주 사용</p>
+                    </div>
+                    <div class="category-card" data-category="shopping">
+                        <div class="category-icon">🛒</div>
+                        <h3>쇼핑하기</h3>
+                        <p>상점, 레스토랑에서 사용</p>
+                    </div>
+                    <div class="category-card" data-category="travel">
+                        <div class="category-icon">✈️</div>
+                        <h3>여행하기</h3>
+                        <p>여행, 교통수단 관련 표현</p>
+                    </div>
+                    <div class="category-card" data-category="emergency">
+                        <div class="category-icon">🚨</div>
+                        <h3>긴급상황</h3>
+                        <p>도움이 필요할 때 사용</p>
+                    </div>
+                    <div class="category-card" data-category="emotions">
+                        <div class="category-icon">😊</div>
+                        <h3>감정표현</h3>
+                        <p>기쁨, 슬픔, 화남 등 표현</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 학습 섹션 -->
+            <section class="learning-section" id="learningSection" style="display: none;">
+                <div class="learning-header">
+                    <button class="back-btn" id="backBtn">← 뒤로가기</button>
+                    <h2 id="categoryTitle">카테고리 제목</h2>
+                </div>
+                
+                <div class="learning-content">
+                    <div class="phrase-card" id="phraseCard">
+                        <div class="phrase-english" id="phraseEnglish">영어 문장이 여기에 표시됩니다</div>
+                        <div class="phrase-korean" id="phraseKorean">한국어 뜻이 여기에 표시됩니다</div>
+                        <div class="phrase-usage" id="phraseUsage">사용법 설명이 여기에 표시됩니다</div>
+                    </div>
+                    
+                    <div class="navigation-buttons">
+                        <button class="nav-btn" id="prevBtn">이전</button>
+                        <button class="nav-btn" id="nextBtn">다음</button>
+                    </div>
+                    
+                    <div class="progress-info">
+                        <span id="currentIndex">1</span> / <span id="totalCount">10</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 학습 팁 -->
+            <section class="tips-section">
+                <h2>💡 학습 팁</h2>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <h4>매일 조금씩</h4>
+                        <p>하루에 5-10개 문장만 학습하세요. 꾸준함이 중요합니다.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>소리 내어 읽기</h4>
+                        <p>문장을 소리 내어 읽으면 기억에 더 잘 남습니다.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>실제 상황 연습</h4>
+                        <p>학습한 문장을 실제 상황에서 사용해보세요.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4>반복 학습</h4>
+                        <p>잘 외워지지 않는 문장은 여러 번 반복하세요.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 실용 영어 학습. 일상생활에서 바로 사용할 수 있는 영어 표현들을 모았습니다.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
