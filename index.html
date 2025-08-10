@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일상 영어 문장 학습 - 가장 많이 사용하는 영어 표현</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">📚 일상 영어 표현</h1>
+            <p class="subtitle">일반인들이 가장 많이 사용하는 영어 문장 모음</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- 검색 및 필터 섹션 -->
+            <section class="search-section">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="영어 문장이나 한국어 뜻을 검색해보세요..." class="search-input">
+                    <button id="searchBtn" class="search-btn">🔍</button>
+                </div>
+                
+                <div class="filter-container">
+                    <button class="filter-btn active" data-category="all">전체</button>
+                    <button class="filter-btn" data-category="greetings">인사</button>
+                    <button class="filter-btn" data-category="daily">일상</button>
+                    <button class="filter-btn" data-category="work">직장</button>
+                    <button class="filter-btn" data-category="shopping">쇼핑</button>
+                    <button class="filter-btn" data-category="travel">여행</button>
+                    <button class="filter-btn" data-category="food">음식</button>
+                </div>
+            </section>
+
+            <!-- 통계 섹션 -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSentences">0</div>
+                        <div class="stat-label">총 문장 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="categoriesCount">6</div>
+                        <div class="stat-label">카테고리</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="studiedCount">0</div>
+                        <div class="stat-label">학습한 문장</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 문장 목록 섹션 -->
+            <section class="sentences-section">
+                <h2 class="section-title">📝 자주 사용하는 영어 문장들</h2>
+                <div id="sentencesList" class="sentences-list">
+                    <!-- 문장들이 JavaScript로 동적으로 추가됩니다 -->
+                </div>
+                
+                <div id="noResults" class="no-results" style="display: none;">
+                    <p>검색 결과가 없습니다. 다른 키워드로 검색해보세요.</p>
+                </div>
+            </section>
+
+            <!-- 학습 팁 섹션 -->
+            <section class="tips-section">
+                <h2 class="section-title">💡 영어 학습 팁</h2>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-icon">🎯</div>
+                        <h3>반복 학습</h3>
+                        <p>같은 문장을 여러 번 반복해서 읽고 말해보세요. 자연스럽게 입에 붙을 때까지 연습하는 것이 중요합니다.</p>
+                    </div>
+                    <div class="tip-card">
+                        <div class="tip-icon">🎭</div>
+                        <h3>상황 연상</h3>
+                        <p>각 문장을 실제 상황과 연결지어 기억하세요. 언제, 어디서 사용할지 상상하며 학습하면 더 오래 기억됩니다.</p>
+                    </div>
+                    <div class="tip-card">
+                        <div class="tip-icon">🗣️</div>
+                        <h3>소리내어 읽기</h3>
+                        <p>문장을 눈으로만 보지 말고 소리내어 읽어보세요. 발음과 억양도 함께 익힐 수 있습니다.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 일상 영어 표현. 영어 학습을 더 쉽고 재미있게!</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
