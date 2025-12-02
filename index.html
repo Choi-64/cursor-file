@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>멀티 자산 대시보드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --panel: #161b22;
+      --text: #e6edf3;
+      --muted: #9ba7b4;
+      --accent: #40c463;
+      --warn: #f7b32b;
+      --danger: #f85149;
+      --line: #263043;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Pretendard', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(64,196,99,0.08), transparent 25%),
+                  radial-gradient(circle at 80% 0%, rgba(247,179,43,0.08), transparent 25%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      padding: 32px 4vw 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    h1 { margin: 0; font-size: 28px; letter-spacing: -0.4px; }
+    p.lead { margin: 0; color: var(--muted); max-width: 960px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 0 4vw 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    }
+    .panel h2 { margin: 0 0 8px; font-size: 16px; letter-spacing: -0.2px; }
+    .panel small { color: var(--muted); }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(64,196,99,0.12);
+      color: var(--accent);
+      border: 1px solid rgba(64,196,99,0.3);
+      font-weight: 600;
+    }
+    .badge.warn { background: rgba(247,179,43,0.12); color: var(--warn); border-color: rgba(247,179,43,0.4); }
+    .badge.danger { background: rgba(248,81,73,0.12); color: var(--danger); border-color: rgba(248,81,73,0.4); }
+    .indicator-list { display: grid; gap: 10px; }
+    .indicator-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+    }
+    .indicator-item strong { font-size: 14px; }
+    .indicator-item span { color: var(--muted); font-size: 13px; }
+    .tag {
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+    .table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .table th, .table td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: 13px; }
+    .pill { padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+    .pill.good { background: rgba(64,196,99,0.12); color: var(--accent); }
+    .pill.mid { background: rgba(247,179,43,0.12); color: var(--warn); }
+    .pill.bad { background: rgba(248,81,73,0.12); color: var(--danger); }
+    .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+    .scroll-x { overflow-x: auto; }
+    .divider { border-top: 1px solid var(--line); margin: 12px 0; }
+    @media (max-width: 640px) {
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge warn">실거래·실적 데이터는 예시이며 업데이트가 필요합니다.</div>
+    <h1>공포·탐욕 + 경제 & 종목 통합 대시보드</h1>
+    <p class="lead">7가지 공포·탐욕 지표, 한·미 7대 경제지표, 12개 주요 종목의 펀더멘털·기술·CANSLIM 진단을 한 화면에서 확인하세요. 모든 수치는 샘플이며 실제 데이터로 교체해 사용하십시오.</p>
+  </header>
+
+  <section class="grid">
+    <div class="panel" style="grid-column: span 2; min-width: 320px;">
+      <h2>금일 공포·탐욕 종합 점수</h2>
+      <small>각 지표 1/7 동일 가중치, 0=극도 공포, 100=극도 탐욕</small>
+      <canvas id="fearGreedGauge" style="max-height: 240px; margin-top: 10px;"></canvas>
+      <div class="divider"></div>
+      <div class="indicator-list" id="fearGreedList"></div>
+    </div>
+    <div class="panel">
+      <h2>최근 14일 공포·탐욕 추세</h2>
+      <canvas id="fearGreedTrend" style="max-height: 220px;"></canvas>
+      <p class="note">단기 변동을 시각화하여 위험 선호 변화 감지.</p>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>한국 7대 경제지표 체크리스트</h2>
+      <div class="indicator-list" id="krIndicators"></div>
+      <p class="note">매일 10분 모니터링: 기준선 대비 괴리와 방향을 확인.</p>
+    </div>
+    <div class="panel">
+      <h2>미국 7대 경제지표 체크리스트</h2>
+      <div class="indicator-list" id="usIndicators"></div>
+      <p class="note">달러·금리·원자재 변동이 위험자산 선호도에 미치는 영향 추적.</p>
+    </div>
+  </section>
+
+  <section class="panel" style="margin: 0 4vw 16px;">
+    <h2>12개 종목 재무 스냅샷 (2024A / 2025E)</h2>
+    <div class="scroll-x">
+      <table class="table" id="financialTable">
+        <thead>
+          <tr>
+            <th>종목</th>
+            <th>매출 (억원)</th>
+            <th>영업이익 (억원)</th>
+            <th>순이익 (억원)</th>
+            <th>부채비율</th>
+            <th>FCF (억원)</th>
+            <th>요약</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">숫자는 예시이며 2022~2025E 연간/2025년 분기 데이터를 입력해 교체하세요.</p>
+  </section>
+
+  <section class="panel" style="margin: 0 4vw 16px;">
+    <div class="split">
+      <div>
+        <h2>기술적 지표 요약 (RSI · MACD · BB · 일목)</h2>
+        <div class="indicator-list" id="techSummary"></div>
+      </div>
+      <div>
+        <h2>CANSLIM 7요소 충족 현황</h2>
+        <div class="indicator-list" id="canslimList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin: 0 4vw 24px;">
+    <h2>데이터 업데이트 가이드</h2>
+    <ul>
+      <li>공포·탐욕 지표: 증권사 HTS/증권사 API 또는 공시 자료의 지표 값으로 <code>fearGreedIndicators</code> 배열을 교체.</li>
+      <li>경제지표: 한국은행 ECOS, 통계청 KOSIS, FRED API 등에서 최신 값을 받아 <code>krIndicators</code>, <code>usIndicators</code> 데이터 갱신.</li>
+      <li>재무·기술·CANSLIM: 회사별 IR 자료, 컨센서스 리포트, 차트 스크리너 지표로 아래 스크립트의 데이터 객체를 수정.</li>
+    </ul>
+    <p class="note">실제 투자 판단 전, 데이터 출처·기준일·통화 단위를 명확히 표시하세요.</p>
+  </section>
+
+  <script>
+    const fearGreedIndicators = [
+      { name: '시장 모멘텀 (KOSPI vs 125일선)', score: 45, baseline: '0중립', detail: '지수/이동평균 괴리 -1.5%' },
+      { name: '주가 강도 (52주 신고가/신저가)', score: 52, baseline: '50 = 균형', detail: '신고가 비중 58%' },
+      { name: '주가 폭 (상승/하락 종목 비율)', score: 48, baseline: '50 = 균형', detail: '상승 47% / 하락 53%' },
+      { name: '옵션 수요 (풋/콜 비율)', score: 40, baseline: '0.7 중립', detail: 'PCR 0.86 (방어적)' },
+      { name: '정크본드 수요', score: 55, baseline: 'OAS 장기평균', detail: '스프레드 390bp' },
+      { name: '시장 변동성 (VIX)', score: 58, baseline: 'VIX 20', detail: 'VIX 16.5 (낮음)' },
+      { name: '안전자산 수요 (주식/채권)', score: 50, baseline: '0 중립', detail: '주식/채권 상대강도 중립' }
+    ];
+
+    const fearGreedScore = Math.round(fearGreedIndicators.reduce((s, i) => s + i.score, 0) / fearGreedIndicators.length);
+    const trendData = Array.from({ length: 14 }, (_, i) => ({ day: `D-${13 - i}`, value: 35 + Math.round(Math.sin(i / 3) * 10) + i }));
+
+    const krIndicatorsData = [
+      { name: '한국 국채 3Y 금리', current: '3.23%', baseline: '3.0%', direction: '⬆ 완만 상승' },
+      { name: '달러 인덱스(DXY)', current: '104.8', baseline: '103', direction: '⬆ 강달러' },
+      { name: '소비자물가(CPI) 전년비', current: '2.7%', baseline: '2%', direction: '↔ 목표 상회' },
+      { name: '고용(취업자 증감)', current: '+8만 명', baseline: '+5만', direction: '⬆ 견조' },
+      { name: 'FOMC/한은 금리결정', current: '동결', baseline: '기대: 동결', direction: '↔ 대기' },
+      { name: '기업 실적 모멘텀', current: '상향 55%', baseline: '50%', direction: '⬆ 개선' },
+      { name: '원자재(유/금/구리)', current: '브렌트 82달러, 금 2400달러, 구리 4.5달러', baseline: '중립', direction: '↗ 경기 민감 강세' }
+    ];
+
+    const usIndicatorsData = [
+      { name: '미국 국채 10Y 금리', current: '4.22%', baseline: '3.8%', direction: '⬆ 완만 상승' },
+      { name: '달러 인덱스(DXY)', current: '104.8', baseline: '100~103', direction: '⬆ 강달러' },
+      { name: '미국 CPI 전년비', current: '3.1%', baseline: '2%', direction: '↘ 둔화' },
+      { name: '고용(비농업 신규고용)', current: '+17만', baseline: '+15만', direction: '↔ 안정' },
+      { name: 'FOMC 정책금리', current: '5.25~5.50%', baseline: '5.00~5.25%', direction: '↔ 동결' },
+      { name: 'S&P500 기업 실적', current: 'EPS +7%YoY', baseline: '+6%', direction: '⬆ 서프라이즈' },
+      { name: '원자재(유/금/구리)', current: 'WTI 80달러, 금 2400달러, 구리 4.5달러', baseline: '중립', direction: '↗ 인플레 압력' }
+    ];
+
+    const financials = [
+      { ticker: '삼성전자', revenue: 325000, op: 52000, net: 47000, debt: '45%', fcf: 41000, note: '반도체 수요 회복, 메모리 ASP 개선' },
+      { ticker: 'SK하이닉스', revenue: 120000, op: 18000, net: 15000, debt: '58%', fcf: 9000, note: 'HBM 주도, 설비투자 증가' },
+      { ticker: '한화오션', revenue: 125000, op: 8000, net: 6200, debt: '210%', fcf: -2000, note: '수주잔고 견조, 운전자본 부담' },
+      { ticker: 'HD한국조선해양', revenue: 190000, op: 10500, net: 7800, debt: '185%', fcf: -3500, note: '친환경 선박 믹스 개선' },
+      { ticker: '두산에너빌리티', revenue: 185000, op: 9500, net: 7000, debt: '165%', fcf: 1500, note: '원전/가스터빈 수주 모멘텀' },
+      { ticker: 'LG에너지솔루션', revenue: 340000, op: 21000, net: 16000, debt: '95%', fcf: -8000, note: 'IRA 인센티브 반영, 투자 확대' },
+      { ticker: 'POSCO홀딩스', revenue: 880000, op: 61000, net: 43000, debt: '85%', fcf: 28000, note: '철강 스프레드 안정, 2차전지 소재 성장' },
+      { ticker: '삼성SDIO', revenue: 220000, op: 17000, net: 14000, debt: '40%', fcf: 9000, note: '전장 MLCC 성장, 수율 개선' },
+      { ticker: '카카오페이', revenue: 26000, op: 1200, net: 900, debt: '20%', fcf: 600, note: '결제/보험 크로스셀, 비용 효율화' },
+      { ticker: '한국금융지주', revenue: 110000, op: 14500, net: 10500, debt: '320%', fcf: 9000, note: '브로커리지·IB 견조, 자본비율 양호' },
+      { ticker: '미래에셋증권', revenue: 95000, op: 11000, net: 8200, debt: '280%', fcf: 7500, note: 'WM 개선, 트레이딩 변동성 완화' },
+      { ticker: '키움증권', revenue: 70000, op: 9000, net: 6800, debt: '250%', fcf: 5200, note: '리테일 수수료 회복, 비용 안정' },
+      { ticker: '메리츠금융지주', revenue: 130000, op: 16500, net: 12500, debt: '240%', fcf: 10300, note: '보험 손해율 안정, 배당 성장' }
+    ];
+
+    const techSignals = [
+      { ticker: '삼성전자', rsi: 56, macd: '상승 교차', bb: '중단선 위', ichimoku: '구름 상단 돌파' },
+      { ticker: 'SK하이닉스', rsi: 62, macd: '상승', bb: '상단 밴드 근접', ichimoku: '전환선>기준선' },
+      { ticker: '한화오션', rsi: 48, macd: '하락 둔화', bb: '중단선', ichimoku: '구름 하단' },
+      { ticker: 'HD한국조선해양', rsi: 52, macd: '상승', bb: '중단선 위', ichimoku: '구름 상향' },
+      { ticker: '두산에너빌리티', rsi: 58, macd: '상승', bb: '상단 밴드', ichimoku: '추세 강화' },
+      { ticker: 'LG에너지솔루션', rsi: 46, macd: '하락', bb: '하단 밴드', ichimoku: '조정' },
+      { ticker: 'POSCO홀딩스', rsi: 65, macd: '강한 상승', bb: '상단 돌파', ichimoku: '강세 추세' },
+      { ticker: '삼성SDIO', rsi: 54, macd: '완만 상승', bb: '중상단', ichimoku: '중립' },
+      { ticker: '카카오페이', rsi: 50, macd: '중립', bb: '중단선', ichimoku: '횡보' },
+      { ticker: '한국금융지주', rsi: 59, macd: '상승', bb: '중상단', ichimoku: '양호' },
+      { ticker: '미래에셋증권', rsi: 53, macd: '중립', bb: '중단선', ichimoku: '횡보' },
+      { ticker: '키움증권', rsi: 61, macd: '상승', bb: '상단', ichimoku: '강세' },
+      { ticker: '메리츠금융지주', rsi: 57, macd: '상승', bb: '중상단', ichimoku: '완만 상승' }
+    ];
+
+    const canslim = [
+      { ticker: '삼성전자', factors: ['C', 'A', 'N', 'S', 'L', 'I', 'M'], hits: ['C','A','N','S','I'] },
+      { ticker: 'SK하이닉스', factors: ['C','A','N','S','L','I','M'], hits: ['C','A','N','S','I'] },
+      { ticker: '한화오션', factors: ['C','A','N','S','L','I','M'], hits: ['N','S'] },
+      { ticker: 'HD한국조선해양', factors: ['C','A','N','S','L','I','M'], hits: ['C','N','S'] },
+      { ticker: '두산에너빌리티', factors: ['C','A','N','S','L','I','M'], hits: ['N','S','L'] },
+      { ticker: 'LG에너지솔루션', factors: ['C','A','N','S','L','I','M'], hits: ['A','N','I'] },
+      { ticker: 'POSCO홀딩스', factors: ['C','A','N','S','L','I','M'], hits: ['C','A','S','I','M'] },
+      { ticker: '삼성SDIO', factors: ['C','A','N','S','L','I','M'], hits: ['C','A','S','I'] },
+      { ticker: '카카오페이', factors: ['C','A','N','S','L','I','M'], hits: ['C','N','I'] },
+      { ticker: '한국금융지주', factors: ['C','A','N','S','L','I','M'], hits: ['C','A','S','L'] },
+      { ticker: '미래에셋증권', factors: ['C','A','N','S','L','I','M'], hits: ['A','S','L'] },
+      { ticker: '키움증권', factors: ['C','A','N','S','L','I','M'], hits: ['C','A','S','L'] },
+      { ticker: '메리츠금융지주', factors: ['C','A','N','S','L','I','M'], hits: ['C','A','S','L','M'] }
+    ];
+
+    const badgeClass = (score) => {
+      if (score >= 60) return 'badge';
+      if (score >= 40) return 'badge warn';
+      return 'badge danger';
+    };
+
+    function renderFearGreed() {
+      const list = document.getElementById('fearGreedList');
+      fearGreedIndicators.forEach(ind => {
+        const item = document.createElement('div');
+        item.className = 'indicator-item';
+        item.innerHTML = `
+          <div>
+            <strong>${ind.name}</strong><br />
+            <span>${ind.detail} · 기준: ${ind.baseline}</span>
+          </div>
+          <div class="badge ${badgeClass(ind.score).split(' ')[1] || ''}">점수 ${ind.score}</div>
+        `;
+        list.appendChild(item);
+      });
+
+      const gaugeCtx = document.getElementById('fearGreedGauge');
+      new Chart(gaugeCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['탐욕', '공포'],
+          datasets: [{
+            data: [fearGreedScore, 100 - fearGreedScore],
+            backgroundColor: ['#40c463', '#f85149'],
+            borderWidth: 0,
+            cutout: '70%'
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false },
+            beforeDraw(chart) {
+              const { ctx, chartArea: { width, height } } = chart;
+              ctx.save();
+              ctx.font = '700 32px Pretendard';
+              ctx.fillStyle = '#e6edf3';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(fearGreedScore, width / 2, height / 2);
+              ctx.font = '13px Pretendard';
+              ctx.fillStyle = '#9ba7b4';
+              ctx.fillText('공포 · 탐욕', width / 2, height / 2 + 24);
+            }
+          }
+        }
+      });
+
+      const trendCtx = document.getElementById('fearGreedTrend');
+      new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: trendData.map(d => d.day),
+          datasets: [{
+            label: '점수',
+            data: trendData.map(d => d.value),
+            borderColor: '#40c463',
+            backgroundColor: 'rgba(64,196,99,0.2)',
+            tension: 0.35,
+            fill: true,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#1f2633' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderIndicators(id, data) {
+      const container = document.getElementById(id);
+      data.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'indicator-item';
+        div.innerHTML = `
+          <div>
+            <strong>${item.name}</strong><br />
+            <span>${item.current} · 기준 ${item.baseline}</span>
+          </div>
+          <div class="tag">${item.direction}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderFinancials() {
+      const tbody = document.querySelector('#financialTable tbody');
+      financials.forEach(row => {
+        const tr = document.createElement('tr');
+        const strengthClass = row.op / row.revenue > 0.12 && row.debt.replace('%','') < 120 ? 'good' : (row.op / row.revenue > 0.08 ? 'mid' : 'bad');
+        tr.innerHTML = `
+          <td>${row.ticker}</td>
+          <td>${row.revenue.toLocaleString()}</td>
+          <td>${row.op.toLocaleString()}</td>
+          <td>${row.net.toLocaleString()}</td>
+          <td>${row.debt}</td>
+          <td>${row.fcf.toLocaleString()}</td>
+          <td><span class="pill ${strengthClass}">${strengthClass === 'good' ? '건전' : strengthClass === 'mid' ? '보통' : '주의'}</span> ${row.note}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTech() {
+      const container = document.getElementById('techSummary');
+      techSignals.forEach(sig => {
+        const div = document.createElement('div');
+        div.className = 'indicator-item';
+        const rsiPill = sig.rsi >= 60 ? 'good' : sig.rsi >= 45 ? 'mid' : 'bad';
+        div.innerHTML = `
+          <div>
+            <strong>${sig.ticker}</strong><br />
+            <span>RSI ${sig.rsi} · MACD ${sig.macd} · BB ${sig.bb} · 일목 ${sig.ichimoku}</span>
+          </div>
+          <span class="pill ${rsiPill}">${rsiPill === 'good' ? '강세' : rsiPill === 'mid' ? '중립' : '약세'}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderCanslim() {
+      const container = document.getElementById('canslimList');
+      canslim.forEach(row => {
+        const div = document.createElement('div');
+        div.className = 'indicator-item';
+        const hitText = row.factors.map(f => row.hits.includes(f) ? `<strong style="color:#40c463">${f}</strong>` : `<span style="color:#9ba7b4">${f}</span>`).join(' · ');
+        const score = Math.round((row.hits.length / row.factors.length) * 100);
+        const pill = score >= 70 ? 'good' : score >= 50 ? 'mid' : 'bad';
+        div.innerHTML = `
+          <div>
+            <strong>${row.ticker}</strong><br />
+            <span>${hitText}</span>
+          </div>
+          <span class="pill ${pill}">${score}% 충족</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    renderFearGreed();
+    renderIndicators('krIndicators', krIndicatorsData);
+    renderIndicators('usIndicators', usIndicatorsData);
+    renderFinancials();
+    renderTech();
+    renderCanslim();
+  </script>
+</body>
+</html>
